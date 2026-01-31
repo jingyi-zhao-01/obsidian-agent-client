@@ -1943,6 +1943,77 @@ If your plugin does not need CSS, delete this file.
 	min-height: 0;
 }
 
+/* Floating chat instance selector menu */
+.agent-client-floating-instance-menu {
+	position: fixed;
+	bottom: 100px;
+	right: 20px;
+	min-width: 220px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 1000;
+	overflow: hidden;
+}
+
+.agent-client-floating-instance-menu-header {
+	padding: 12px 16px;
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--text-muted);
+	background: var(--background-secondary);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.agent-client-floating-instance-menu-item {
+	padding: 10px 16px;
+	cursor: pointer;
+	font-size: 13px;
+	color: var(--text-normal);
+	transition: background-color 0.1s;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.agent-client-floating-instance-menu-item:hover {
+	background: var(--background-modifier-hover);
+}
+
+.agent-client-floating-instance-menu-item.active {
+	background: var(--background-modifier-active-hover);
+	color: var(--text-accent);
+}
+
+.agent-client-floating-instance-menu-close {
+	background: none;
+	border: none;
+	color: var(--text-muted);
+	font-size: 20px;
+	line-height: 1;
+	padding: 0;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background-color 0.1s, color 0.1s;
+}
+
+.agent-client-floating-instance-menu-close:hover {
+	background: var(--background-modifier-error);
+	color: var(--text-error);
+}
+
+.agent-client-floating-instance-menu-separator {
+	height: 1px;
+	background: var(--background-modifier-border);
+	margin: 4px 0;
+}
+
 /* ===== Code Block Chat View ===== */
 .agent-client-code-block-container {
 	display: flex;

@@ -157,8 +157,10 @@ export default class AgentClientPlugin extends Plugin {
 	private _adapters: Map<string, AcpAdapter> = new Map();
 	/** Track the last active ChatView for keybind targeting */
 	private _lastActiveChatViewId: string | null = null;
-	/** React root for floating chat component */
-	private floatingChatRoot: Root | null = null;
+	/** Map of instanceId to floating chat roots and containers */
+	private floatingChatInstances: Map<string, { root: Root; container: HTMLElement }> = new Map();
+	/** Counter for generating unique floating chat instance IDs */
+	private floatingChatCounter = 0;
 
 	async onload() {
 		await this.loadSettings();
@@ -218,8 +220,8 @@ export default class AgentClientPlugin extends Plugin {
 
 		this.addSettingTab(new AgentClientSettingTab(this.app, this));
 
-		// Mount floating chat component
-		this.floatingChatRoot = mountFloatingChat(this);
+		// Mount initial floating chat component
+		this.openNewFloatingChat();
 
 		// Register agent-client code block processor
 		this.registerMarkdownCodeBlockProcessor("agent-client", (source, el, ctx) => {
@@ -249,16 +251,12 @@ export default class AgentClientPlugin extends Plugin {
 	}
 
 	onunload() {
-		// Unmount floating chat
-		if (this.floatingChatRoot) {
-			this.floatingChatRoot.unmount();
-			this.floatingChatRoot = null;
+		// Unmount all floating chat instances
+		for (const [instanceId, { root, container }] of this.floatingChatInstances) {
+			root.unmount();
+			container.remove();
 		}
-		// Remove floating chat container from DOM
-		const floatingContainer = document.querySelector(".agent-client-floating-root");
-		if (floatingContainer) {
-			floatingContainer.remove();
-		}
+		this.floatingChatInstances.clear();
 	}
 
 	/**
@@ -455,6 +453,46 @@ export default class AgentClientPlugin extends Plugin {
 				}
 			}, 0);
 		}
+	}
+
+	/**
+	 * Open a new floating chat window.
+	 * Each window is independent with its own session.
+	 */
+	openNewFloatingChat(initialExpanded = false): void {
+		const instanceId = `floating-${this.floatingChatCounter++}`;
+		const { root, container } = mountFloatingChat(this, instanceId, initialExpanded);
+		this.floatingChatInstances.set(instanceId, { root, container });
+	}
+
+	/**
+	 * Close a specific floating chat window.
+	 */
+	closeFloatingChat(instanceId: string): void {
+		const instance = this.floatingChatInstances.get(instanceId);
+		if (instance) {
+			instance.root.unmount();
+			instance.container.remove();
+			this.floatingChatInstances.delete(instanceId);
+		}
+	}
+
+	/**
+	 * Get all floating chat instance IDs.
+	 */
+	getFloatingChatInstances(): string[] {
+		return Array.from(this.floatingChatInstances.keys());
+	}
+
+	/**
+	 * Expand a specific floating chat window by triggering a custom event.
+	 */
+	expandFloatingChat(instanceId: string): void {
+		window.dispatchEvent(
+			new CustomEvent("agent-client:expand-floating-chat", {
+				detail: { instanceId },
+			}),
+		);
 	}
 
 	/**

@@ -15,16 +15,18 @@ import { useChatController } from "../../hooks/useChatController";
 
 interface FloatingChatComponentProps {
 	plugin: AgentClientPlugin;
+	instanceId: string;
+	initialExpanded?: boolean;
 }
 
-function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
+function FloatingChatComponent({ plugin, instanceId, initialExpanded = false }: FloatingChatComponentProps) {
 
 	// ============================================================
 	// Chat Controller Hook (Centralized Logic)
 	// ============================================================
 	const controller = useChatController({
 		plugin,
-		viewId: "floating-chat",
+		viewId: `floating-chat-${instanceId}`,
 		workingDirectory: undefined, // Let hook determine from vault
 	});
 
@@ -65,7 +67,8 @@ function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
 	// ============================================================
 	// UI State (View-Specific)
 	// ============================================================
-	const [isExpanded, setIsExpanded] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(initialExpanded);
+	const [showInstanceMenu, setShowInstanceMenu] = useState(false);
 	const [size, setSize] = useState(settings.floatingWindowSize);
 	const [position, setPosition] = useState(() => {
 		if (settings.floatingWindowPosition) return settings.floatingWindowPosition;
@@ -103,6 +106,48 @@ function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
 		}
 		return (plugin.app.vault.adapter as VaultAdapterWithResourcePath).getResourcePath?.(img);
 	}, [settings.floatingButtonImage, plugin.app.vault.adapter]);
+
+	// Handlers for window management
+	const handleOpenNewFloatingChat = useCallback(() => {
+		console.log("[FloatingChatView] Opening new floating chat...");
+		plugin.openNewFloatingChat(true); // Open expanded
+	}, [plugin]);
+
+	const handleCloseWindow = useCallback(() => {
+		setIsExpanded(false);
+	}, []);
+
+	const handleButtonClick = useCallback(() => {
+		const instances = plugin.getFloatingChatInstances();
+		if (instances.length > 1) {
+			// Multiple instances exist, show menu to select
+			setShowInstanceMenu(true);
+		} else {
+			// Single instance, just expand
+			setIsExpanded(true);
+		}
+	}, [plugin]);
+
+	// Listen for expand requests from other instances
+	useEffect(() => {
+		const handleExpandRequest = (event: CustomEvent) => {
+			if (event.detail.instanceId === instanceId) {
+				setIsExpanded(true);
+				setShowInstanceMenu(false);
+			}
+		};
+
+		window.addEventListener(
+			"agent-client:expand-floating-chat" as never,
+			handleExpandRequest as EventListener,
+		);
+		return () => {
+			window.removeEventListener(
+				"agent-client:expand-floating-chat" as never,
+				handleExpandRequest as EventListener,
+			);
+		};
+	}, [instanceId]);
 
 	// Sync manual resizing with state
 	useEffect(() => {
@@ -199,11 +244,85 @@ function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
 	// ============================================================
 	if (!settings.showFloatingButton) return null;
 
-	if (!isExpanded) {
+	// Only show button for the first instance (others are hidden)
+	const allInstances = plugin.getFloatingChatInstances();
+	const isFirstInstance = allInstances[0] === instanceId;
+
+	// Render button (only from first instance)
+	const renderButton = () => {
+		if (!isFirstInstance) return null;
+
+		// Show instance selector menu if requested
+		if (showInstanceMenu) {
+			return (
+				<>
+					<div
+						className="agent-client-floating-button"
+						style={floatingButtonImageSrc ? { background: "transparent" } : undefined}
+					>
+						{floatingButtonImageSrc ? (
+							<img src={floatingButtonImageSrc} alt="AI" />
+						) : (
+							<div className="agent-client-floating-button-fallback">
+								<span>AI</span>
+							</div>
+						)}
+					</div>
+					<div
+						className="agent-client-floating-instance-menu"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div className="agent-client-floating-instance-menu-header">
+							Select session to open
+						</div>
+						{allInstances.map((id, index) => (
+							<div
+								key={id}
+								className={`agent-client-floating-instance-menu-item ${
+									id === instanceId ? "active" : ""
+								}`}
+							>
+								<span
+									onClick={() => {
+										plugin.expandFloatingChat(id);
+										setShowInstanceMenu(false);
+									}}
+									style={{ flex: 1, cursor: "pointer" }}
+								>
+									Chat {index + 1} {id === instanceId ? `(${activeAgentLabel})` : ""}
+								</span>
+								{allInstances.length > 1 && (
+									<button
+										className="agent-client-floating-instance-menu-close"
+										onClick={(e) => {
+											e.stopPropagation();
+											plugin.closeFloatingChat(id);
+											setShowInstanceMenu(false);
+										}}
+										title="Close session"
+									>
+										×
+									</button>
+								)}
+							</div>
+						))}
+						<div className="agent-client-floating-instance-menu-separator" />
+						<div
+							className="agent-client-floating-instance-menu-item"
+							onClick={() => setShowInstanceMenu(false)}
+						>
+							Cancel
+						</div>
+					</div>
+				</>
+			);
+		}
+
+		// Always show button from first instance
 		return (
 			<div
 				className="agent-client-floating-button"
-				onClick={() => setIsExpanded(true)}
+				onClick={handleButtonClick}
 				style={floatingButtonImageSrc ? { background: "transparent" } : undefined}
 			>
 				{floatingButtonImageSrc ? (
@@ -215,19 +334,27 @@ function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
 				)}
 			</div>
 		);
+	};
+
+	// If this instance is not expanded, only render button (if first instance)
+	if (!isExpanded) {
+		return renderButton();
 	}
 
+	// If this instance is expanded, render both button and window
 	return (
-		<div
-			ref={containerRef}
-			className="agent-client-floating-window"
-			style={{
-				left: position.x,
-				top: position.y,
-				width: size.width,
-				height: size.height
-			}}
-		>
+		<>
+			{renderButton()}
+			<div
+				ref={containerRef}
+				className="agent-client-floating-window"
+				style={{
+					left: position.x,
+					top: position.y,
+					width: size.width,
+					height: size.height
+				}}
+			>
 			<div className="agent-client-floating-header" onMouseDown={onMouseDown}>
 				<InlineHeader
 					variant="floating"
@@ -242,7 +369,8 @@ function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
 					onOpenHistory={() => void handleOpenHistory()}
 					onExportChat={() => void handleExportChat()}
 					onRestartAgent={() => void handleRestartAgent()}
-					onClose={() => setIsExpanded(false)}
+					onOpenNewWindow={handleOpenNewFloatingChat}
+					onClose={handleCloseWindow}
 				/>
 			</div>
 
@@ -299,13 +427,15 @@ function FloatingChatComponent({ plugin }: FloatingChatComponentProps) {
 					onAttachedImagesChange={setAttachedImages}
 					errorInfo={errorInfo}
 					onClearError={handleClearError}
-				/>							</div>
-						</div>
-					);
-				}
-export function mountFloatingChat(plugin: AgentClientPlugin) {
+				/>
+			</div>
+		</div>
+		</>
+	);
+}
+export function mountFloatingChat(plugin: AgentClientPlugin, instanceId: string, initialExpanded = false) {
 	const container = document.body.createDiv({ cls: "agent-client-floating-root" });
 	const root = createRoot(container);
-	root.render(<FloatingChatComponent plugin={plugin} />);
-	return root;
+	root.render(<FloatingChatComponent plugin={plugin} instanceId={instanceId} initialExpanded={initialExpanded} />);
+	return { root, container };
 }

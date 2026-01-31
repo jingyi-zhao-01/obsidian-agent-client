@@ -35,6 +35,8 @@ export interface InlineHeaderProps {
 	onRestartAgent: () => void;
 	/** View variant */
 	variant: "floating" | "codeblock";
+	/** Callback to open new window (floating only) */
+	onOpenNewWindow?: () => void;
 	/** Callback to close window (floating only) */
 	onClose?: () => void;
 }
@@ -61,6 +63,7 @@ export function InlineHeader({
 	onExportChat,
 	onRestartAgent,
 	variant,
+	onOpenNewWindow,
 	onClose,
 }: InlineHeaderProps) {
 	return (
@@ -108,6 +111,13 @@ export function InlineHeader({
 					tooltip="Restart agent"
 					onClick={onRestartAgent}
 				/>
+				{variant === "floating" && onOpenNewWindow && (
+					<HeaderButton
+						iconName="copy-plus"
+						tooltip="Open new floating chat"
+						onClick={onOpenNewWindow}
+					/>
+				)}
 				{variant === "floating" && onClose && (
 					<HeaderButton
 						iconName="x"
