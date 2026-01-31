@@ -190,12 +190,8 @@ If your plugin does not need CSS, delete this file.
 }
 
 .agent-client-message-tool-call-command code {
-	display: block;
 	font-family: var(--font-monospace);
 	font-size: 0.9em;
-	background: var(--background-secondary);
-	padding: 2px 6px;
-	border-radius: 3px;
 }
 
 .agent-client-message-tool-call-status {
