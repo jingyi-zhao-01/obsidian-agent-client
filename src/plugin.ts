@@ -21,7 +21,7 @@ import {
 	CustomAgentSettings,
 } from "./domain/models/agent-config";
 import type { SavedSessionInfo } from "./domain/models/session-info";
-import { Logger, initializeLogger } from "./shared/logger";
+import { initializeLogger } from "./shared/logger";
 
 // Re-export for backward compatibility
 export type { AgentEnvVar, CustomAgentSettings };
@@ -141,7 +141,6 @@ const DEFAULT_SETTINGS: AgentClientPluginSettings = {
 export default class AgentClientPlugin extends Plugin {
 	settings: AgentClientPluginSettings;
 	settingsStore!: SettingsStore;
-	logger!: Logger;
 
 	/** Map of viewId to AcpAdapter for multi-session support */
 	private _adapters: Map<string, AcpAdapter> = new Map();
