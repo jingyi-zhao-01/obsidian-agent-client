@@ -8,7 +8,7 @@ import { ConfirmDeleteModal } from "../components/chat/ConfirmDeleteModal";
 
 // Service imports
 import { NoteMentionService } from "../adapters/obsidian/mention-service";
-import { Logger } from "../shared/logger";
+import { getLogger, Logger } from "../shared/logger";
 import { ChatExporter } from "../shared/chat-exporter";
 
 // Adapter imports
@@ -83,10 +83,15 @@ export interface UseChatControllerReturn {
 	// Computed values
 	activeAgentLabel: string;
 	availableAgents: AgentInfo[];
-	errorInfo: ReturnType<typeof useChat>["errorInfo"] | ReturnType<typeof useAgentSession>["errorInfo"];
+	errorInfo:
+		| ReturnType<typeof useChat>["errorInfo"]
+		| ReturnType<typeof useAgentSession>["errorInfo"];
 
 	// Core callbacks
-	handleSendMessage: (content: string, images?: ImagePromptContent[]) => Promise<void>;
+	handleSendMessage: (
+		content: string,
+		images?: ImagePromptContent[],
+	) => Promise<void>;
 	handleStopGeneration: () => Promise<void>;
 	handleNewChat: (requestedAgentId?: string) => Promise<void>;
 	handleExportChat: () => Promise<void>;
@@ -120,7 +125,7 @@ export function useChatController(
 	// ============================================================
 	// Memoized Services & Adapters
 	// ============================================================
-	const logger = useMemo(() => new Logger(plugin), [plugin]);
+	const logger = getLogger();
 
 	const vaultPath = useMemo(() => {
 		if (options.workingDirectory) {
@@ -223,13 +228,17 @@ export function useChatController(
 		useState(false);
 
 	const handleLoadStart = useCallback(() => {
-		logger.log("[useChatController] session/load started, ignoring history replay");
+		logger.log(
+			"[useChatController] session/load started, ignoring history replay",
+		);
 		setIsLoadingSessionHistory(true);
 		chat.clearMessages();
 	}, [logger, chat]);
 
 	const handleLoadEnd = useCallback(() => {
-		logger.log("[useChatController] session/load ended, resuming normal processing");
+		logger.log(
+			"[useChatController] session/load ended, resuming normal processing",
+		);
 		setIsLoadingSessionHistory(false);
 	}, [logger]);
 
@@ -301,7 +310,9 @@ export function useChatController(
 			const isFirstMessage = messages.length === 0;
 
 			await chat.sendMessage(content, {
-				activeNote: autoMention.activeNote,
+				activeNote: settings.autoMentionActiveNote
+					? autoMention.activeNote
+					: null,
 				vaultBasePath:
 					(plugin.app.vault.adapter as VaultAdapterWithBasePath)
 						.basePath || "",
@@ -328,6 +339,7 @@ export function useChatController(
 			session.sessionId,
 			sessionHistory,
 			logger,
+			settings.autoMentionActiveNote,
 		],
 	);
 
@@ -430,11 +442,7 @@ export function useChatController(
 
 		// Auto-export current chat before restart (if has messages)
 		if (messages.length > 0) {
-			await autoExport.autoExportIfEnabled(
-				"newChat",
-				messages,
-				session,
-			);
+			await autoExport.autoExportIfEnabled("newChat", messages, session);
 		}
 
 		// Clear messages for fresh start
@@ -463,7 +471,9 @@ export function useChatController(
 	const handleRestoreSession = useCallback(
 		async (sessionId: string, cwd: string) => {
 			try {
-				logger.log(`[useChatController] Restoring session: ${sessionId}`);
+				logger.log(
+					`[useChatController] Restoring session: ${sessionId}`,
+				);
 				chat.clearMessages();
 				await sessionHistory.restoreSession(sessionId, cwd);
 				new Notice("Session restored");
@@ -502,7 +512,9 @@ export function useChatController(
 				sessionTitle,
 				async () => {
 					try {
-						logger.log(`[useChatController] Deleting session: ${sessionId}`);
+						logger.log(
+							`[useChatController] Deleting session: ${sessionId}`,
+						);
 						await sessionHistory.deleteSession(sessionId);
 						new Notice("Session deleted");
 					} catch (error) {
@@ -637,11 +649,20 @@ export function useChatController(
 				(m) => m.modelId === config.model,
 			);
 			if (modelExists && session.models.currentModelId !== config.model) {
-				logger.log("[useChatController] Applying configured model:", config.model);
+				logger.log(
+					"[useChatController] Applying configured model:",
+					config.model,
+				);
 				void agentSession.setModel(config.model);
 			}
 		}
-	}, [config?.model, isSessionReady, session.models, agentSession.setModel, logger]);
+	}, [
+		config?.model,
+		isSessionReady,
+		session.models,
+		agentSession.setModel,
+		logger,
+	]);
 
 	// Refs for cleanup (to access latest values in cleanup function)
 	const messagesRef = useRef(messages);
@@ -656,7 +677,9 @@ export function useChatController(
 	// Cleanup on unmount only - auto-export and close session
 	useEffect(() => {
 		return () => {
-			logger.log("[useChatController] Cleanup: auto-export and close session");
+			logger.log(
+				"[useChatController] Cleanup: auto-export and close session",
+			);
 			void (async () => {
 				await autoExportRef.current.autoExportIfEnabled(
 					"closeChat",
