@@ -546,7 +546,14 @@ export default class AgentClientPlugin extends Plugin {
 			id: "approve-active-permission",
 			name: "Approve active permission",
 			callback: async () => {
-				await this.activateView();
+				// Only activate sidebar view if the focused view is a sidebar
+				// (avoid stealing focus from floating views)
+				const focusedId = this.lastActiveChatViewId;
+				const isFloatingFocused =
+					focusedId?.startsWith("floating-chat-");
+				if (!isFloatingFocused) {
+					await this.activateView();
+				}
 				this.app.workspace.trigger(
 					"agent-client:approve-active-permission" as "quit",
 					this.lastActiveChatViewId,
@@ -558,7 +565,14 @@ export default class AgentClientPlugin extends Plugin {
 			id: "reject-active-permission",
 			name: "Reject active permission",
 			callback: async () => {
-				await this.activateView();
+				// Only activate sidebar view if the focused view is a sidebar
+				// (avoid stealing focus from floating views)
+				const focusedId = this.lastActiveChatViewId;
+				const isFloatingFocused =
+					focusedId?.startsWith("floating-chat-");
+				if (!isFloatingFocused) {
+					await this.activateView();
+				}
 				this.app.workspace.trigger(
 					"agent-client:reject-active-permission" as "quit",
 					this.lastActiveChatViewId,
@@ -570,7 +584,14 @@ export default class AgentClientPlugin extends Plugin {
 			id: "toggle-auto-mention",
 			name: "Toggle auto-mention",
 			callback: async () => {
-				await this.activateView();
+				// Only activate sidebar view if the focused view is a sidebar
+				// (avoid stealing focus from floating views)
+				const focusedId = this.lastActiveChatViewId;
+				const isFloatingFocused =
+					focusedId?.startsWith("floating-chat-");
+				if (!isFloatingFocused) {
+					await this.activateView();
+				}
 				this.app.workspace.trigger(
 					"agent-client:toggle-auto-mention" as "quit",
 					this.lastActiveChatViewId,
