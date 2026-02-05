@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 const { useRef, useEffect } = React;
 import { setIcon } from "obsidian";
 import type AgentClientPlugin from "../../plugin";
-import type { ChatView } from "./ChatView";
+import type { IChatViewHost } from "./types";
 
 interface AgentInfo {
 	id: string;
@@ -30,7 +30,7 @@ export interface HeaderMenuProps {
 	/** Plugin instance */
 	plugin: AgentClientPlugin;
 	/** View instance for event registration */
-	view: ChatView;
+	view: IChatViewHost;
 }
 
 export function HeaderMenu({

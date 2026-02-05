@@ -4,7 +4,7 @@ const { useRef, useState, useEffect, useCallback } = React;
 import type { ChatMessage } from "../../domain/models/chat-message";
 import type { IAcpClient } from "../../adapters/acp/acp.adapter";
 import type AgentClientPlugin from "../../plugin";
-import type { ChatView } from "./ChatView";
+import type { IChatViewHost } from "./types";
 import { MessageRenderer } from "./MessageRenderer";
 
 /**
@@ -24,7 +24,7 @@ export interface ChatMessagesProps {
 	/** Plugin instance */
 	plugin: AgentClientPlugin;
 	/** View instance for event registration */
-	view: ChatView;
+	view: IChatViewHost;
 	/** ACP client for terminal operations */
 	acpClient?: IAcpClient;
 	/** Callback to approve a permission request */

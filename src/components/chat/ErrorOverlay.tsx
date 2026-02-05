@@ -2,7 +2,7 @@ import * as React from "react";
 const { useRef, useEffect } = React;
 import { setIcon } from "obsidian";
 import type { ErrorInfo } from "../../domain/models/agent-error";
-import type { ChatView } from "./ChatView";
+import type { IChatViewHost } from "./types";
 
 export interface ErrorOverlayProps {
 	/** Error information to display */
@@ -12,7 +12,7 @@ export interface ErrorOverlayProps {
 	/** Whether to show emojis */
 	showEmojis: boolean;
 	/** View instance for event registration */
-	view: ChatView;
+	view: IChatViewHost;
 }
 
 /**

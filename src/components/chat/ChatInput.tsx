@@ -3,7 +3,7 @@ const { useRef, useState, useEffect, useCallback } = React;
 import { setIcon, DropdownComponent, Notice } from "obsidian";
 
 import type AgentClientPlugin from "../../plugin";
-import type { ChatView } from "./ChatView";
+import type { IChatViewHost } from "./types";
 import type { NoteMetadata } from "../../domain/ports/vault-access.port";
 import type {
 	SlashCommand,
@@ -71,7 +71,7 @@ export interface ChatInputProps {
 	/** Plugin instance */
 	plugin: AgentClientPlugin;
 	/** View instance for event registration */
-	view: ChatView;
+	view: IChatViewHost;
 	/** Callback to send a message with optional images */
 	onSendMessage: (
 		content: string,

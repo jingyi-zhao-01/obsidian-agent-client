@@ -2,7 +2,7 @@ import * as React from "react";
 const { useRef, useEffect } = React;
 import { getLogger } from "../../shared/logger";
 import type AgentClientPlugin from "../../plugin";
-import type { ChatView } from "./ChatView";
+import type { IChatViewHost } from "./types";
 import type { NoteMetadata } from "../../domain/ports/vault-access.port";
 import type { SlashCommand } from "../../domain/models/chat-session";
 
@@ -37,7 +37,7 @@ interface SuggestionDropdownProps {
 	plugin: AgentClientPlugin;
 
 	/** View instance for event registration */
-	view: ChatView;
+	view: IChatViewHost;
 }
 
 /**
