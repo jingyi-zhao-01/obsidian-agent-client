@@ -2,6 +2,7 @@ import * as React from "react";
 const { useState, useRef, useEffect, useCallback, useMemo } = React;
 import { createRoot, type Root } from "react-dom/client";
 
+import { setIcon } from "obsidian";
 import type AgentClientPlugin from "../../plugin";
 import { useSettings } from "../../hooks/useSettings";
 import { clampPosition } from "./floating-utils";
@@ -150,9 +151,12 @@ function FloatingButtonComponent({ plugin }: FloatingButtonProps) {
 					{floatingButtonImageSrc ? (
 						<img src={floatingButtonImageSrc} alt="AI" />
 					) : (
-						<div className="agent-client-floating-button-fallback">
-							<span>AI</span>
-						</div>
+						<div
+							className="agent-client-floating-button-fallback"
+							ref={(el) => {
+								if (el) setIcon(el, "bot-message-square");
+							}}
+						/>
 					)}
 				</div>
 				<div
@@ -213,9 +217,12 @@ function FloatingButtonComponent({ plugin }: FloatingButtonProps) {
 			{floatingButtonImageSrc ? (
 				<img src={floatingButtonImageSrc} alt="AI" />
 			) : (
-				<div className="agent-client-floating-button-fallback">
-					<span>AI</span>
-				</div>
+				<div
+					className="agent-client-floating-button-fallback"
+					ref={(el) => {
+						if (el) setIcon(el, "bot-message-square");
+					}}
+				/>
 			)}
 		</div>
 	);

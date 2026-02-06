@@ -1887,9 +1887,15 @@ If your plugin does not need CSS, delete this file.
 }
 
 .agent-client-floating-button-fallback {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	color: var(--text-on-accent);
-	font-weight: bold;
-	font-size: 16px;
+}
+
+.agent-client-floating-button-fallback svg {
+	width: 24px;
+	height: 24px;
 }
 
 /* ===== Floating Chat Window ===== */
