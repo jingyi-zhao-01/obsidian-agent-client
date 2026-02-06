@@ -173,6 +173,7 @@ function FloatingButtonComponent({ plugin }: FloatingButtonProps) {
 							className="agent-client-floating-instance-menu-item"
 							onClick={() => {
 								plugin.expandFloatingChat(id);
+								plugin.viewRegistry.setFocused(id);
 								setShowInstanceMenu(false);
 							}}
 						>

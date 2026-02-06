@@ -130,11 +130,11 @@ export class FloatingViewContainer implements IChatViewContainer {
 	}
 
 	onActivate(): void {
-		// Floating views don't need special activation handling
+		this.containerEl.classList.add("is-focused");
 	}
 
 	onDeactivate(): void {
-		// Floating views don't need special deactivation handling
+		this.containerEl.classList.remove("is-focused");
 	}
 
 	focus(): void {

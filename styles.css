@@ -1843,6 +1843,10 @@ If your plugin does not need CSS, delete this file.
 	pointer-events: none;
 }
 
+.agent-client-floating-view-root.is-focused {
+	z-index: 21;
+}
+
 .agent-client-floating-view-root > * {
 	pointer-events: auto;
 }
