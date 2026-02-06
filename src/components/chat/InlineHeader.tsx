@@ -175,11 +175,11 @@ export function InlineHeader({
 					tooltip="Export chat to Markdown"
 					onClick={onExportChat}
 				/>
-				<HeaderButton
+				{/* <HeaderButton
 					iconName="rotate-cw"
 					tooltip="Restart agent"
 					onClick={onRestartAgent}
-				/>
+				/> */}
 				{variant === "floating" && onOpenNewWindow && (
 					<HeaderButton
 						iconName="copy-plus"
