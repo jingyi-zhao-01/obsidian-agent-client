@@ -35,6 +35,9 @@ export interface IChatViewContainer {
 	/** Type of this view (sidebar, floating, etc.) */
 	readonly viewType: ChatViewType;
 
+	/** Human-readable display name for this view (e.g. active agent label). */
+	getDisplayName(): string;
+
 	// ============================================================
 	// Lifecycle
 	// ============================================================

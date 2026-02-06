@@ -330,6 +330,7 @@ function ChatComponent({
 	// Register callbacks with ChatView class for broadcast commands
 	useEffect(() => {
 		view.registerInputCallbacks({
+			getDisplayName: () => activeAgentLabel,
 			getInputState,
 			setInputState,
 			sendMessage: sendMessageForBroadcast,
@@ -342,6 +343,7 @@ function ChatComponent({
 		};
 	}, [
 		view,
+		activeAgentLabel,
 		getInputState,
 		setInputState,
 		sendMessageForBroadcast,
@@ -577,6 +579,7 @@ interface ChatViewState extends Record<string, unknown> {
 }
 
 // Callback types for input state access (broadcast commands)
+type GetDisplayNameCallback = () => string;
 type GetInputStateCallback = () => ChatInputState | null;
 type SetInputStateCallback = (state: ChatInputState) => void;
 type SendMessageCallback = () => Promise<boolean>;
@@ -598,6 +601,7 @@ export class ChatView extends ItemView implements IChatViewContainer {
 		new Set();
 
 	// Callbacks for input state access (broadcast commands)
+	private getDisplayNameCallback: GetDisplayNameCallback | null = null;
 	private getInputStateCallback: GetInputStateCallback | null = null;
 	private setInputStateCallback: SetInputStateCallback | null = null;
 	private sendMessageCallback: SendMessageCallback | null = null;
@@ -692,12 +696,14 @@ export class ChatView extends ItemView implements IChatViewContainer {
 	 * Called by ChatComponent on mount.
 	 */
 	registerInputCallbacks(callbacks: {
+		getDisplayName: GetDisplayNameCallback;
 		getInputState: GetInputStateCallback;
 		setInputState: SetInputStateCallback;
 		sendMessage: SendMessageCallback;
 		canSend: CanSendCallback;
 		cancel: CancelCallback;
 	}): void {
+		this.getDisplayNameCallback = callbacks.getDisplayName;
 		this.getInputStateCallback = callbacks.getInputState;
 		this.setInputStateCallback = callbacks.setInputState;
 		this.sendMessageCallback = callbacks.sendMessage;
@@ -709,11 +715,16 @@ export class ChatView extends ItemView implements IChatViewContainer {
 	 * Unregister callbacks when component unmounts.
 	 */
 	unregisterInputCallbacks(): void {
+		this.getDisplayNameCallback = null;
 		this.getInputStateCallback = null;
 		this.setInputStateCallback = null;
 		this.sendMessageCallback = null;
 		this.canSendCallback = null;
 		this.cancelCallback = null;
+	}
+
+	getDisplayName(): string {
+		return this.getDisplayNameCallback?.() ?? "Chat";
 	}
 
 	/**

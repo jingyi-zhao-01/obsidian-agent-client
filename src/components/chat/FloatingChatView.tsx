@@ -30,6 +30,7 @@ import { useChatController } from "../../hooks/useChatController";
  * to the React component's state and handlers.
  */
 interface FloatingViewCallbacks {
+	getDisplayName: () => string;
 	getInputState: () => ChatInputState | null;
 	setInputState: (state: ChatInputState) => void;
 	canSend: () => boolean;
@@ -121,6 +122,10 @@ export class FloatingViewContainer implements IChatViewContainer {
 	// ============================================================
 	// IChatViewContainer Implementation
 	// ============================================================
+
+	getDisplayName(): string {
+		return this.callbacks?.getDisplayName() ?? "Chat";
+	}
 
 	onActivate(): void {
 		// Floating views don't need special activation handling
@@ -508,6 +513,7 @@ function FloatingChatComponent({
 	useEffect(() => {
 		if (onRegisterCallbacks) {
 			onRegisterCallbacks({
+				getDisplayName: () => activeAgentLabel,
 				getInputState: () => ({
 					text: inputValue,
 					images: attachedImages,
@@ -587,6 +593,7 @@ function FloatingChatComponent({
 		}
 	}, [
 		onRegisterCallbacks,
+		activeAgentLabel,
 		inputValue,
 		attachedImages,
 		isSessionReady,
@@ -761,6 +768,33 @@ function FloatingChatComponent({
 	const allInstances = plugin.getFloatingChatInstances();
 	const isFirstInstance = allInstances[0] === viewId;
 
+	// Build display labels with duplicate numbering
+	const instanceLabels = useMemo(() => {
+		const views = plugin.viewRegistry.getByType("floating");
+		const entries = views.map((v) => ({
+			viewId: v.viewId,
+			label: v.getDisplayName(),
+		}));
+		// Count occurrences of each label
+		const countMap = new Map<string, number>();
+		for (const e of entries) {
+			countMap.set(e.label, (countMap.get(e.label) ?? 0) + 1);
+		}
+		// Assign numbered suffix only when duplicates exist
+		const indexMap = new Map<string, number>();
+		return entries.map((e) => {
+			if ((countMap.get(e.label) ?? 0) > 1) {
+				const idx = (indexMap.get(e.label) ?? 0) + 1;
+				indexMap.set(e.label, idx);
+				return {
+					viewId: e.viewId,
+					label: idx === 1 ? e.label : `${e.label} ${idx}`,
+				};
+			}
+			return e;
+		});
+	}, [plugin.viewRegistry, allInstances, showInstanceMenu]);
+
 	// Render button (only from first instance)
 	const renderButton = () => {
 		if (!isFirstInstance) return null;
@@ -793,7 +827,7 @@ function FloatingChatComponent({
 						<div className="agent-client-floating-instance-menu-header">
 							Select session to open
 						</div>
-						{allInstances.map((id, index) => (
+						{instanceLabels.map(({ viewId: id, label }) => (
 							<div
 								key={id}
 								className="agent-client-floating-instance-menu-item"
@@ -805,9 +839,9 @@ function FloatingChatComponent({
 									}}
 									style={{ flex: 1, cursor: "pointer" }}
 								>
-									Chat {index + 1}
+									{label}
 								</span>
-								{allInstances.length > 1 && (
+								{instanceLabels.length > 1 && (
 									<button
 										className="agent-client-floating-instance-menu-close"
 										onClick={(e) => {
