@@ -2250,26 +2250,3 @@ If your plugin does not need CSS, delete this file.
 .agent-client-new-session-button:hover {
 	filter: brightness(1.1);
 }
-
-/* ===== Active Note Indicator ===== */
-.agent-client-active-note-indicator {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	font-size: 11px;
-	color: var(--text-muted);
-	background: var(--background-primary);
-	padding: 2px 6px;
-	border-radius: 4px;
-}
-
-.agent-client-note-icon {
-	font-size: 12px;
-}
-
-.agent-client-note-name {
-	max-width: 120px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
