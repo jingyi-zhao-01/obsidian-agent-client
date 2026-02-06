@@ -171,16 +171,12 @@ function FloatingButtonComponent({ plugin }: FloatingButtonProps) {
 						<div
 							key={id}
 							className="agent-client-floating-instance-menu-item"
+							onClick={() => {
+								plugin.expandFloatingChat(id);
+								setShowInstanceMenu(false);
+							}}
 						>
-							<span
-								onClick={() => {
-									plugin.expandFloatingChat(id);
-									setShowInstanceMenu(false);
-								}}
-								style={{ flex: 1, cursor: "pointer" }}
-							>
-								{label}
-							</span>
+							<span style={{ flex: 1 }}>{label}</span>
 							{instanceLabels.length > 1 && (
 								<button
 									className="agent-client-floating-instance-menu-close"
