@@ -690,7 +690,7 @@ function FloatingChatComponent({
 			container.removeEventListener("focus", handleFocus, true);
 			container.removeEventListener("click", handleFocus);
 		};
-	}, [plugin, viewId]);
+	}, [plugin, viewId, isExpanded]);
 
 	// ============================================================
 	// Render
