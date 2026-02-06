@@ -1828,7 +1828,7 @@ If your plugin does not need CSS, delete this file.
 /* ===== Floating Chat Button ===== */
 .agent-client-floating-root {
 	position: fixed;
-	z-index: 9999;
+	z-index: 20;
 	pointer-events: none;
 }
 
