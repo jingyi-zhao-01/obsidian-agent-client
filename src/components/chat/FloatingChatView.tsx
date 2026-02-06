@@ -84,13 +84,17 @@ export class FloatingViewContainer implements IChatViewContainer {
 	/**
 	 * Mount the React component and register with the plugin.
 	 */
-	mount(initialExpanded: boolean): void {
+	mount(
+		initialExpanded: boolean,
+		initialPosition?: { x: number; y: number },
+	): void {
 		this.root = createRoot(this.containerEl);
 		this.root.render(
 			<FloatingChatComponent
 				plugin={this.plugin}
 				viewId={this.viewId}
 				initialExpanded={initialExpanded}
+				initialPosition={initialPosition}
 				onRegisterCallbacks={(cbs) => {
 					this.callbacks = cbs;
 				}}
@@ -172,6 +176,7 @@ interface FloatingChatComponentProps {
 	plugin: AgentClientPlugin;
 	viewId: string; // Full viewId passed from FloatingViewContainer
 	initialExpanded?: boolean;
+	initialPosition?: { x: number; y: number };
 	onRegisterCallbacks?: (callbacks: FloatingViewCallbacks) => void;
 }
 
@@ -179,6 +184,7 @@ function FloatingChatComponent({
 	plugin,
 	viewId,
 	initialExpanded = false,
+	initialPosition,
 	onRegisterCallbacks,
 }: FloatingChatComponentProps) {
 	// ============================================================
@@ -231,6 +237,7 @@ function FloatingChatComponent({
 	const [showInstanceMenu, setShowInstanceMenu] = useState(false);
 	const [size, setSize] = useState(settings.floatingWindowSize);
 	const [position, setPosition] = useState(() => {
+		if (initialPosition) return initialPosition;
 		if (settings.floatingWindowPosition)
 			return settings.floatingWindowPosition;
 		return {
@@ -302,8 +309,12 @@ function FloatingChatComponent({
 
 	// Handlers for window management
 	const handleOpenNewFloatingChat = useCallback(() => {
-		plugin.openNewFloatingChat(true); // Open expanded
-	}, [plugin]);
+		// Open new window with 30px offset from current position
+		plugin.openNewFloatingChat(true, {
+			x: position.x - 30,
+			y: position.y - 30,
+		});
+	}, [plugin, position]);
 
 	const handleCloseWindow = useCallback(() => {
 		setIsExpanded(false);
@@ -916,8 +927,9 @@ export function createFloatingChat(
 	plugin: AgentClientPlugin,
 	instanceId: string,
 	initialExpanded = false,
+	initialPosition?: { x: number; y: number },
 ): FloatingViewContainer {
 	const container = new FloatingViewContainer(plugin, instanceId);
-	container.mount(initialExpanded);
+	container.mount(initialExpanded, initialPosition);
 	return container;
 }

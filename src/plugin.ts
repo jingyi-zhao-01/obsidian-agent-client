@@ -438,11 +438,19 @@ export default class AgentClientPlugin extends Plugin {
 	 * Open a new floating chat window.
 	 * Each window is independent with its own session.
 	 */
-	openNewFloatingChat(initialExpanded = false): void {
+	openNewFloatingChat(
+		initialExpanded = false,
+		initialPosition?: { x: number; y: number },
+	): void {
 		// instanceId is just the counter (e.g., "0", "1", "2")
 		// FloatingViewContainer will create viewId as "floating-chat-{instanceId}"
 		const instanceId = String(this.floatingChatCounter++);
-		const container = createFloatingChat(this, instanceId, initialExpanded);
+		const container = createFloatingChat(
+			this,
+			instanceId,
+			initialExpanded,
+			initialPosition,
+		);
 		// Store by viewId for consistent lookup
 		this.floatingChatInstances.set(container.viewId, {
 			root: null as unknown as Root,
