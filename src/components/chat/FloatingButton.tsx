@@ -143,7 +143,7 @@ function FloatingButtonComponent({ plugin }: FloatingButtonProps) {
 		<>
 			<div className={buttonClassName} onClick={handleButtonClick}>
 				{floatingButtonImageSrc ? (
-					<img src={floatingButtonImageSrc} alt="AI" />
+					<img src={floatingButtonImageSrc} alt="Open chat" />
 				) : (
 					<div
 						className="agent-client-floating-button-fallback"
