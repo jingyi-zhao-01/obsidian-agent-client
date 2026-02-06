@@ -14,7 +14,6 @@ import type { ChatInputState } from "../../domain/models/chat-input-state";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
-import type { AttachedImage } from "./ImagePreviewStrip";
 import { HeaderMenu } from "./HeaderMenu";
 
 // Utility imports
