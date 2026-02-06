@@ -231,6 +231,50 @@ export default class AgentClientPlugin extends Plugin {
 		this.registerPermissionCommands();
 		this.registerBroadcastCommands();
 
+		// Floating chat window commands
+		this.addCommand({
+			id: "open-floating-chat",
+			name: "Open floating chat window",
+			callback: () => {
+				if (!this.settings.showFloatingButton) return;
+				const instances = this.getFloatingChatInstances();
+				if (instances.length === 0) {
+					this.openNewFloatingChat(true);
+				} else if (instances.length === 1) {
+					this.expandFloatingChat(instances[0]);
+				} else {
+					const focused = this.viewRegistry.getFocused();
+					if (focused && focused.viewType === "floating") {
+						focused.expand();
+					} else {
+						this.expandFloatingChat(
+							instances[instances.length - 1],
+						);
+					}
+				}
+			},
+		});
+
+		this.addCommand({
+			id: "open-new-floating-chat",
+			name: "Open new floating chat window",
+			callback: () => {
+				if (!this.settings.showFloatingButton) return;
+				this.openNewFloatingChat(true);
+			},
+		});
+
+		this.addCommand({
+			id: "close-floating-chat",
+			name: "Close floating chat window",
+			callback: () => {
+				const focused = this.viewRegistry.getFocused();
+				if (focused && focused.viewType === "floating") {
+					focused.collapse();
+				}
+			},
+		});
+
 		this.addSettingTab(new AgentClientSettingTab(this.app, this));
 
 		// Mount floating button (always present; visibility controlled by settings inside component)

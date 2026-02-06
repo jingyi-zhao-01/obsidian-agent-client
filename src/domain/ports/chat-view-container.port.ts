@@ -83,6 +83,13 @@ export interface IChatViewContainer {
 	 */
 	expand(): void;
 
+	/**
+	 * Collapse the view if it's in an expanded state.
+	 * For sidebar views, this is a no-op.
+	 * For floating views, this hides the window without destroying the instance.
+	 */
+	collapse(): void;
+
 	// ============================================================
 	// Broadcast Commands
 	// ============================================================

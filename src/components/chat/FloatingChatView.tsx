@@ -41,6 +41,7 @@ interface FloatingViewCallbacks {
 	focus: () => void;
 	hasFocus: () => boolean;
 	expand: () => void;
+	collapse: () => void;
 }
 
 /**
@@ -148,6 +149,10 @@ export class FloatingViewContainer implements IChatViewContainer {
 
 	expand(): void {
 		this.callbacks?.expand();
+	}
+
+	collapse(): void {
+		this.callbacks?.collapse();
 	}
 
 	getInputState(): ChatInputState | null {
@@ -521,6 +526,9 @@ function FloatingChatComponent({
 						false),
 				expand: () => {
 					setIsExpanded(true);
+				},
+				collapse: () => {
+					setIsExpanded(false);
 				},
 			});
 		}
