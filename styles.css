@@ -153,7 +153,7 @@ If your plugin does not need CSS, delete this file.
 	background-color: transparent;
 	border: 1px solid var(--background-modifier-border);
 	border-radius: 4px;
-	font-size: 12px;
+	font-size: 0.85em;
 	user-select: text;
 	overflow-wrap: break-word;
 	word-wrap: break-word;
@@ -388,6 +388,7 @@ If your plugin does not need CSS, delete this file.
 
 /* Main container */
 .agent-client-chat-view-container {
+	--ac-chat-font-size: var(--font-text-size);
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -465,6 +466,7 @@ If your plugin does not need CSS, delete this file.
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
+	font-size: var(--ac-chat-font-size);
 	min-height: 0;
 }
 
@@ -722,7 +724,7 @@ If your plugin does not need CSS, delete this file.
 	min-height: 80px;
 	max-height: 300px;
 	font-family: inherit;
-	font-size: var(--font-text-size);
+	font-size: var(--ac-chat-font-size);
 	line-height: var(--line-height-normal);
 	box-sizing: border-box;
 	outline: none;
@@ -775,7 +777,7 @@ If your plugin does not need CSS, delete this file.
 	padding: 12px;
 	box-sizing: border-box;
 	font-family: inherit;
-	font-size: var(--font-text-size);
+	font-size: var(--ac-chat-font-size);
 	line-height: var(--line-height-normal);
 	/* Text wrapping */
 	white-space: pre-wrap;
@@ -1147,7 +1149,7 @@ If your plugin does not need CSS, delete this file.
 	word-break: break-word;
 	overflow-wrap: break-word;
 	margin: 1em 0;
-	font-size: var(--font-text-size);
+	font-size: var(--ac-chat-font-size);
 	max-width: 100%;
 }
 
@@ -1163,7 +1165,7 @@ If your plugin does not need CSS, delete this file.
 /* Markdown Text Renderer */
 .agent-client-markdown-text-renderer {
 	user-select: text;
-	font-size: var(--font-text-size);
+	font-size: var(--ac-chat-font-size);
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 	word-break: break-word;

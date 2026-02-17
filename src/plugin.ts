@@ -21,6 +21,9 @@ import {
 	ensureUniqueCustomAgentIds,
 } from "./shared/settings-utils";
 import {
+	parseChatFontSize,
+} from "./shared/display-settings";
+import {
 	AgentEnvVar,
 	GeminiAgentSettings,
 	ClaudeAgentSettings,
@@ -84,6 +87,7 @@ export interface AgentClientPluginSettings {
 		maxNoteLength: number;
 		maxSelectionLength: number;
 		showEmojis: boolean;
+		fontSize: number | null;
 	};
 	// Locally saved session metadata (for agents without session/list support)
 	savedSessions: SavedSessionInfo[];
@@ -148,6 +152,7 @@ const DEFAULT_SETTINGS: AgentClientPluginSettings = {
 		maxNoteLength: 10000,
 		maxSelectionLength: 10000,
 		showEmojis: true,
+		fontSize: null,
 	},
 	savedSessions: [],
 	lastUsedModels: {},
@@ -1030,6 +1035,7 @@ export default class AgentClientPlugin extends Plugin {
 							typeof rawDisplay.showEmojis === "boolean"
 								? rawDisplay.showEmojis
 								: DEFAULT_SETTINGS.displaySettings.showEmojis,
+						fontSize: parseChatFontSize(rawDisplay.fontSize),
 					};
 				}
 				return DEFAULT_SETTINGS.displaySettings;

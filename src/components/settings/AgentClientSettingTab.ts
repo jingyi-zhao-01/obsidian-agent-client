@@ -12,6 +12,11 @@ import type {
 	ChatViewLocation,
 } from "../../plugin";
 import { normalizeEnvVars } from "../../shared/settings-utils";
+import {
+	CHAT_FONT_SIZE_MAX,
+	CHAT_FONT_SIZE_MIN,
+	parseChatFontSize,
+} from "../../shared/display-settings";
 
 export class AgentClientSettingTab extends PluginSettingTab {
 	plugin: AgentClientPlugin;
@@ -186,6 +191,99 @@ export class AgentClientSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}),
 			);
+
+		new Setting(containerEl)
+			.setName("Chat font size")
+			.setDesc(
+				`Adjust the font size of the chat message area (${CHAT_FONT_SIZE_MIN}-${CHAT_FONT_SIZE_MAX}px).`,
+			)
+			.addText((text) => {
+				const getCurrentDisplayValue = (): string => {
+					const currentFontSize =
+						this.plugin.settings.displaySettings.fontSize;
+					return currentFontSize === null ? "" : String(currentFontSize);
+				};
+
+				const persistChatFontSize = async (
+					fontSize: number | null,
+				): Promise<void> => {
+					if (this.plugin.settings.displaySettings.fontSize === fontSize) {
+						return;
+					}
+
+					const nextSettings = {
+						...this.plugin.settings,
+						displaySettings: {
+							...this.plugin.settings.displaySettings,
+							fontSize,
+						},
+					};
+					await this.plugin.saveSettingsAndNotify(nextSettings);
+				};
+
+				text
+					.setPlaceholder(
+						`${CHAT_FONT_SIZE_MIN}-${CHAT_FONT_SIZE_MAX}`,
+					)
+					.setValue(getCurrentDisplayValue())
+					.onChange(async (value) => {
+						if (value.trim().length === 0) {
+							await persistChatFontSize(null);
+							return;
+						}
+
+						const trimmedValue = value.trim();
+						if (!/^-?\d+$/.test(trimmedValue)) {
+							return;
+						}
+
+						const numericValue = Number.parseInt(trimmedValue, 10);
+						if (
+							numericValue < CHAT_FONT_SIZE_MIN ||
+							numericValue > CHAT_FONT_SIZE_MAX
+						) {
+							return;
+						}
+
+						const parsedFontSize = parseChatFontSize(numericValue);
+						if (parsedFontSize === null) {
+							return;
+						}
+
+						const hasChanged =
+							this.plugin.settings.displaySettings.fontSize !==
+							parsedFontSize;
+						if (hasChanged) {
+							await persistChatFontSize(parsedFontSize);
+						}
+					});
+
+					text.inputEl.addEventListener("blur", () => {
+						const currentInputValue = text.getValue();
+						const parsedFontSize = parseChatFontSize(currentInputValue);
+
+						if (
+							currentInputValue.trim().length > 0 &&
+							parsedFontSize === null
+						) {
+							text.setValue(getCurrentDisplayValue());
+							return;
+						}
+
+						if (parsedFontSize !== null) {
+							text.setValue(String(parsedFontSize));
+							const hasChanged =
+								this.plugin.settings.displaySettings.fontSize !==
+								parsedFontSize;
+							if (hasChanged) {
+								void persistChatFontSize(parsedFontSize);
+							}
+							return;
+						}
+
+						text.setValue("");
+					});
+			});
 
 		new Setting(containerEl)
 			.setName("Show emojis")
