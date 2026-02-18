@@ -20,9 +20,7 @@ import {
 	normalizeCustomAgent,
 	ensureUniqueCustomAgentIds,
 } from "./shared/settings-utils";
-import {
-	parseChatFontSize,
-} from "./shared/display-settings";
+import { parseChatFontSize } from "./shared/display-settings";
 import {
 	AgentEnvVar,
 	GeminiAgentSettings,

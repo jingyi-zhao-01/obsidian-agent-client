@@ -505,7 +505,10 @@ function ChatComponent({
 			: undefined;
 
 	return (
-		<div className="agent-client-chat-view-container" style={chatFontSizeStyle}>
+		<div
+			className="agent-client-chat-view-container"
+			style={chatFontSizeStyle}
+		>
 			<ChatHeader
 				agentLabel={activeAgentLabel}
 				isUpdateAvailable={isUpdateAvailable}

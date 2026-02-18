@@ -201,13 +201,18 @@ export class AgentClientSettingTab extends PluginSettingTab {
 				const getCurrentDisplayValue = (): string => {
 					const currentFontSize =
 						this.plugin.settings.displaySettings.fontSize;
-					return currentFontSize === null ? "" : String(currentFontSize);
+					return currentFontSize === null
+						? ""
+						: String(currentFontSize);
 				};
 
 				const persistChatFontSize = async (
 					fontSize: number | null,
 				): Promise<void> => {
-					if (this.plugin.settings.displaySettings.fontSize === fontSize) {
+					if (
+						this.plugin.settings.displaySettings.fontSize ===
+						fontSize
+					) {
 						return;
 					}
 
@@ -221,10 +226,9 @@ export class AgentClientSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettingsAndNotify(nextSettings);
 				};
 
-				text
-					.setPlaceholder(
-						`${CHAT_FONT_SIZE_MIN}-${CHAT_FONT_SIZE_MAX}`,
-					)
+				text.setPlaceholder(
+					`${CHAT_FONT_SIZE_MIN}-${CHAT_FONT_SIZE_MAX}`,
+				)
 					.setValue(getCurrentDisplayValue())
 					.onChange(async (value) => {
 						if (value.trim().length === 0) {
@@ -258,31 +262,31 @@ export class AgentClientSettingTab extends PluginSettingTab {
 						}
 					});
 
-					text.inputEl.addEventListener("blur", () => {
-						const currentInputValue = text.getValue();
-						const parsedFontSize = parseChatFontSize(currentInputValue);
+				text.inputEl.addEventListener("blur", () => {
+					const currentInputValue = text.getValue();
+					const parsedFontSize = parseChatFontSize(currentInputValue);
 
-						if (
-							currentInputValue.trim().length > 0 &&
-							parsedFontSize === null
-						) {
-							text.setValue(getCurrentDisplayValue());
-							return;
+					if (
+						currentInputValue.trim().length > 0 &&
+						parsedFontSize === null
+					) {
+						text.setValue(getCurrentDisplayValue());
+						return;
+					}
+
+					if (parsedFontSize !== null) {
+						text.setValue(String(parsedFontSize));
+						const hasChanged =
+							this.plugin.settings.displaySettings.fontSize !==
+							parsedFontSize;
+						if (hasChanged) {
+							void persistChatFontSize(parsedFontSize);
 						}
+						return;
+					}
 
-						if (parsedFontSize !== null) {
-							text.setValue(String(parsedFontSize));
-							const hasChanged =
-								this.plugin.settings.displaySettings.fontSize !==
-								parsedFontSize;
-							if (hasChanged) {
-								void persistChatFontSize(parsedFontSize);
-							}
-							return;
-						}
-
-						text.setValue("");
-					});
+					text.setValue("");
+				});
 			});
 
 		new Setting(containerEl)
