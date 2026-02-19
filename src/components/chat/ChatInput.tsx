@@ -658,11 +658,15 @@ export function ChatInput({
 			}
 
 			// Normal input handling - check if should send based on shortcut setting
-			if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+			const hasCmdCtrl = e.metaKey || e.ctrlKey;
+			if (
+				e.key === "Enter" &&
+				(!e.nativeEvent.isComposing || hasCmdCtrl)
+			) {
 				const shouldSend =
 					settings.sendMessageShortcut === "enter"
 						? !e.shiftKey // Enter mode: send unless Shift is pressed
-						: e.metaKey || e.ctrlKey; // Cmd+Enter mode: send only with Cmd/Ctrl
+						: hasCmdCtrl; // Cmd+Enter mode: send only with Cmd/Ctrl
 
 				if (shouldSend) {
 					e.preventDefault();
