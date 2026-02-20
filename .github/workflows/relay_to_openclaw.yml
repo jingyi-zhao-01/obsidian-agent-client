@@ -1,0 +1,37 @@
+# Relay GitHub events to OpenClaw via webhook
+# OpenClaw translates the event into Japanese and posts it to Discord
+#
+# Required secrets:
+#   OPENCLAW_WEBHOOK_URL - OpenClaw hooks endpoint URL
+#   OPENCLAW_HOOKS_TOKEN - Bearer token for OpenClaw hooks authentication
+
+name: Relay to OpenClaw
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Forward event to OpenClaw
+        env:
+          GH_EVENT: ${{ toJSON(github.event) }}
+          OPENCLAW_WEBHOOK_URL: ${{ secrets.OPENCLAW_WEBHOOK_URL }}
+          OPENCLAW_HOOKS_TOKEN: ${{ secrets.OPENCLAW_HOOKS_TOKEN }}
+        run: |
+          jq -n \
+            --arg msg "GitHub ${{ github.event_name }} on ${{ github.repository }}
+
+          Translate the full text into Japanese and post it to Discord.
+
+          $GH_EVENT" \
+            '{"message": $msg}' | \
+          curl -sf -X POST \
+            "${OPENCLAW_WEBHOOK_URL}/hooks/agent" \
+            -H "Authorization: Bearer ${OPENCLAW_HOOKS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d @-
