@@ -44,7 +44,7 @@ jobs:
           Translate all of the above content into Japanese exactly as written. Do not summarize or omit anything. Post the full translation to Discord." \
             --arg ch "discord" \
             --arg to "$OPENCLAW_DISCORD_CHANNEL" \
-            '{message: $msg, deliver: true, channel: $ch, to: $to, name: "GitHub", agentId: "github-hook"}' | \
+            '{message: $msg, deliver: true, channel: $ch, to: $to, name: "GitHub", agentId: "github-hook", announce: false}' | \
           curl -sf -X POST \
             "${OPENCLAW_WEBHOOK_URL}/hooks/agent" \
             -H "Authorization: Bearer ${OPENCLAW_HOOKS_TOKEN}" \
