@@ -44,6 +44,10 @@ If your plugin does not need CSS, delete this file.
 	margin: 4px 0;
 }
 
+.agent-client-loading-indicator.agent-client-hidden {
+	visibility: hidden;
+}
+
 .agent-client-loading-dots {
 	display: grid;
 	grid-template-columns: repeat(3, 4px);
